@@ -1,0 +1,104 @@
+# -------------------------------
+# Visual Studio / Rider / .NET
+# -------------------------------
+
+## Rider
+.idea/
+.idea_modules/
+*.iml
+*.iws
+*.ipr
+
+## User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+## Build results
+bin/
+obj/
+out/
+
+## OS generated files
+.DS_Store
+Thumbs.db
+
+## Rider caches
+*.sln.DotSettings.user
+
+## Rider local history
+.idea/.idea_local_history/
+
+## .NET
+*.exe
+*.dll
+*.pdb
+*.app
+*.appx
+*.appxbundle
+*.nuget/
+*.nupkg
+*.snupkg
+*.vsix
+*.vscode/
+.vscode/
+*.dbmdl
+*.bak
+
+## NuGet
+*.nupkg
+packages/
+# The packages folder can be ignored because restore will download them again.
+**/packages/*
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# EF Core Migrations
+Migrations/
+*.Designer.cs
+*.snapshot.cs
+
+# Rider and ReSharper
+_ReSharper.*
+*.DotSettings.user
+
+# Coverage and Test results
+TestResults/
+*.coverage
+*.coveragexml
+*.trx
+*.log
+*.vsmdi
+*.hprof
+
+# StyleCop / Analyzers
+StyleCopReport.xml
+
+# JetBrains Rider settings
+.idea/
+
+# Rider caches
+.idea/.idea_local_history/
+
+# Temporary files
+*.tmp
+*.temp
+*.cache
+
+# VS Code
+.vscode/
+
+# Logs
+*.log
+
+# SQLite database (si quieres ignorarlo)
+*.db
+
+# Generated PDFs (si tu app genera PDFs temporales)
+*.pdf
+
+# Other
+*.swp
+*~
