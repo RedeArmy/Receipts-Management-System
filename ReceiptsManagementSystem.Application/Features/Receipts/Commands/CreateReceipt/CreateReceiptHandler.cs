@@ -5,7 +5,7 @@ using ReceiptsManagementSystem.Domain.ValueObjects;
 
 namespace ReceiptsManagementSystem.Application.Features.Receipts.Commands.CreateReceipt;
 
-public class CreateReceiptHandler
+public sealed class CreateReceiptHandler : IRequestHandler<CreateReceiptCommand, Guid>
 {
     private readonly IReceiptRepository _receiptRepository;
 
@@ -16,17 +16,21 @@ public class CreateReceiptHandler
 
     public async Task<Guid> Handle(CreateReceiptCommand request, CancellationToken cancellationToken)
     {
+        
+        if (request.ReceiptDto is null) throw new ArgumentNullException(nameof(request.ReceiptDto));
+        if (request.ReceiptDto.Items is null || !request.ReceiptDto.Items.Any()) throw new ArgumentException("Receipt must contain at least one item.", nameof(request.ReceiptDto.Items));
+        
         // Convertir DTO a Value Objects
         var customerId = new CustomerId(request.ReceiptDto.CustomerId);
-        var items = request.ReceiptDto.ItemAmounts
-            .Select(amount => new Money(amount, request.ReceiptDto.Currency))
+        var items = request.ReceiptDto.Items
+            .Select(i => new Money(i.Amount, i.Currency))
             .ToList();
 
         // Crear Aggregate Root
         var receipt = new Receipt(customerId, items);
 
         // Persistir usando repositorio
-        await _receiptRepository.AddAsync(receipt);
+        await _receiptRepository.AddAsync(receipt, cancellationToken);
 
         // Devolver Id
         return receipt.Id;
