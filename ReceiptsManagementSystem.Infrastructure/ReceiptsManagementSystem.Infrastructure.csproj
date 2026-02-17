@@ -8,24 +8,20 @@
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     </PropertyGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\ReceiptsManagementSystem.Application\ReceiptsManagementSystem.Application.csproj" />
+    <ItemGroup> 
       <ProjectReference Include="..\ReceiptsManagementSystem.Domain\ReceiptsManagementSystem.Domain.csproj" />
     </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="Dapper" Version="2.1.66" />
-      <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="10.0.103">
-        <PrivateAssets>all</PrivateAssets>
-      </PackageReference>
-      <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.3" />
-      <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.3" />
-      <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.3" />
-      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.3" />
+      <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.10" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Database\Migrations\" />
+        <None Update="Database\Migrations\*.sql">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
 </Project>
