@@ -16,23 +16,29 @@ public sealed class CreateReceiptHandler : IRequestHandler<CreateReceiptCommand,
 
     public async Task<Guid> Handle(CreateReceiptCommand request, CancellationToken cancellationToken)
     {
+        var dto = request.ReceiptDto;
         
-        if (request.ReceiptDto is null) throw new ArgumentNullException(nameof(request.ReceiptDto));
-        if (request.ReceiptDto.Items is null || !request.ReceiptDto.Items.Any()) throw new ArgumentException("Receipt must contain at least one item.", nameof(request.ReceiptDto.Items));
+        var nextNumber = await _receiptRepository.GetNextReceiptNumberAsync(cancellationToken);
         
-        // Convertir DTO a Value Objects
-        var customerId = new CustomerId(request.ReceiptDto.CustomerId);
-        var items = request.ReceiptDto.Items
-            .Select(i => new Money(i.Amount, i.Currency))
-            .ToList();
+        var customerId = new CustomerId(dto.CustomerId);
+        var amount     = new Money(dto.Amount.Amount, dto.Amount.Currency);
+       
+        var receipt = new Receipt(
+            receiptNumber:         nextNumber,
+            customerId:            customerId,
+            customerName:          dto.CustomerName,
+            amount:                amount,
+            description:           dto.Description,
+            paymentMethod:         dto.PaymentMethod,
+            checkOrTransferNumber: dto.CheckOrTransferNumber,
+            accountNumber:         dto.AccountNumber,
+            bank:                  dto.Bank,
+            customerSignatureName: dto.CustomerSignatureName,
+            receiverName:          dto.ReceiverName);
 
-        // Crear Aggregate Root
-        var receipt = new Receipt(customerId, items);
-
-        // Persistir usando repositorio
+        // 4. Persistir
         await _receiptRepository.AddAsync(receipt, cancellationToken);
 
-        // Devolver Id
         return receipt.Id;
     }
 }

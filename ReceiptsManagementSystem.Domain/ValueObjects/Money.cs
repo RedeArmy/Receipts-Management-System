@@ -5,7 +5,7 @@ public sealed class Money
     public decimal Amount { get; }
     public string Currency { get; }
 
-    public Money(decimal amount, string currency = "USD")
+    public Money(decimal amount, string currency = "GTQ")
     {
         if (amount < 0)
             throw new ArgumentException("Amount cannot be negative", nameof(amount));
