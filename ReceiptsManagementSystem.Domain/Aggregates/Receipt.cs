@@ -1,50 +1,148 @@
 using ReceiptsManagementSystem.Domain.ValueObjects;
+using ReceiptsManagementSystem.Domain.Enums;
 
 namespace ReceiptsManagementSystem.Domain.Aggregates;
 
 public sealed class Receipt
 {
     public Guid Id { get; private set; }
+    public int ReceiptNumber { get; private set; }
     public CustomerId CustomerId { get; private set; }
-    public DateTime Date { get; private set; }
-    public IReadOnlyList<Money> Items => _items.AsReadOnly();
-    private List<Money> _items;
-    public Money Total => CalculateTotal();
+    public string CustomerName { get; private set; } = string.Empty;
+    public Money Amount { get; private set; }
+    public string Description { get; private set; } = string.Empty;
+    public PaymentMethod PaymentMethod { get; private set; }
+    public string? CheckOrTransferNumber { get; private set; }
+    public string? AccountNumber { get; private set; }
+    public string? Bank { get; private set; }
+    //public Money? PendingBalance { get; private set; }
+    public string CustomerSignatureName { get; private set; } = string.Empty;
+    public string ReceiverName { get; private set; } = string.Empty;
+    public ReceiptStatus Status { get; private set; } = ReceiptStatus.Active;
+    public string? CancellationReason { get; private set; }
+    public DateTime CreatedAt { get; private set; }
 
     // Constructor principal
-    public Receipt(CustomerId customerId, List<Money> items)
+    public Receipt(
+        int receiptNumber,
+        CustomerId customerId,
+        string customerName,
+        Money amount,
+        string description,
+        PaymentMethod paymentMethod,
+        string? checkOrTransferNumber,
+        string? accountNumber,
+        string? bank,
+        //Money? pendingBalance,
+        string customerSignatureName,
+        string receiverName)
     {
         Id = Guid.NewGuid();
+        ReceiptNumber = receiptNumber;
         CustomerId = customerId ?? throw new ArgumentNullException(nameof(customerId));
-        _items = items ?? throw new ArgumentNullException(nameof(items));
-        if (!_items.Any())
-            throw new ArgumentException("Receipt must have at least one item.", nameof(items));
-        Date = DateTime.UtcNow;
+        CustomerName = string.IsNullOrWhiteSpace(customerName)
+            ? throw new ArgumentNullException(nameof(customerName))
+            : customerName;
+        Amount = amount ?? throw new ArgumentNullException(nameof(amount));
+        Description = string.IsNullOrWhiteSpace(description)
+            ? throw new ArgumentNullException(nameof(description))
+            : description;
+        PaymentMethod = paymentMethod;
+        CheckOrTransferNumber = checkOrTransferNumber;
+        AccountNumber = accountNumber;
+        Bank = bank;
+        //PendingBalance = pendingBalance;
+        CustomerSignatureName = string.IsNullOrWhiteSpace(customerSignatureName)
+            ? throw new ArgumentNullException(nameof(customerSignatureName))
+            : customerSignatureName;
+        ReceiverName = string.IsNullOrWhiteSpace(receiverName)
+            ? throw new ArgumentNullException(nameof(receiverName))
+            : receiverName;
+        CreatedAt = DateTime.UtcNow;
+
+        ValidatePaymentFields();
     }
 
-    // Lógica de negocio interna
-    private Money CalculateTotal()
+    private Receipt()
     {
-        decimal sum = _items.Sum(item => item.Amount);
-        string currency = _items.First().Currency; // asumimos misma moneda
-        return new Money(sum, currency);
+        CustomerId = null!;
+        Amount = null!;
     }
 
-    // Método para agregar item
-    public void AddItem(Money item)
+    public static Receipt Reconstitute(
+        Guid id,
+        int receiptNumber,
+        CustomerId customerId,
+        string customerName,
+        Money amount,
+        string description,
+        PaymentMethod paymentMethod,
+        string? checkOrTransferNumber,
+        string? accountNumber,
+        string? bank,
+        string customerSignatureName,
+        string receiverName,
+        ReceiptStatus status,
+        string? cancellationReason,
+        DateTime createdAt)
     {
-        if (item is null) throw new ArgumentNullException(nameof(item));
-        if (_items.Any() && item.Currency != _items.First().Currency)
-            throw new InvalidOperationException("All items must have the same currency.");
-        _items.Add(item);
+        return new Receipt
+        {
+            Id = id,
+            ReceiptNumber = receiptNumber,
+            CustomerId = customerId,
+            CustomerName = customerName,
+            Amount = amount,
+            Description = description,
+            PaymentMethod = paymentMethod,
+            CheckOrTransferNumber = checkOrTransferNumber,
+            AccountNumber = accountNumber,
+            Bank = bank,
+            CustomerSignatureName = customerSignatureName,
+            ReceiverName = receiverName,
+            Status = status,
+            CancellationReason = cancellationReason,
+            CreatedAt = createdAt
+        };
     }
 
-    // Método para eliminar item
-    public void RemoveItem(Money item)
+    private void ValidatePaymentFields()
     {
-        if (!_items.Contains(item))
-            throw new InvalidOperationException("Item not found in receipt.");
+        if (PaymentMethod is PaymentMethod.Check or PaymentMethod.Transfer)
+        {
+            if (string.IsNullOrWhiteSpace(CheckOrTransferNumber))
+                throw new ArgumentException("Check or transfer number is required for check/transfer payment.");
+        }
 
-        _items.Remove(item);
+        if (PaymentMethod == PaymentMethod.Transfer)
+        {
+            if (string.IsNullOrWhiteSpace(AccountNumber) || string.IsNullOrWhiteSpace(Bank))
+                throw new ArgumentException("Account number and Bank are required for transfer payment.");
+        }
+    }
+
+    // Método para cancelar recibo
+    public void Cancel(string reason)
+    {
+        if (Status == ReceiptStatus.Cancelled)
+            throw new InvalidOperationException("Receipt is already cancelled.");
+
+        if (string.IsNullOrWhiteSpace(reason))
+            throw new ArgumentException("Cancellation reason must be provided.", nameof(reason));
+
+        Status = ReceiptStatus.Cancelled;
+        CancellationReason = reason;
+    }
+
+    // Método para actualizar monto y descripción
+    public void UpdateReceipt(Money amount, string description)
+    {
+        if (Status == ReceiptStatus.Cancelled)
+            throw new InvalidOperationException("Cannot update a cancelled receipt.");
+
+        Amount = amount ?? throw new ArgumentNullException(nameof(amount));
+        Description = string.IsNullOrWhiteSpace(description)
+            ? throw new ArgumentNullException(nameof(description))
+            : description;
     }
 }
