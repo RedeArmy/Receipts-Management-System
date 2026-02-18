@@ -69,54 +69,38 @@ public sealed class Receipt
         Amount = null!;
     }
 
-    public static Receipt Reconstitute(
-        Guid id,
-        int receiptNumber,
-        CustomerId customerId,
-        string customerName,
-        Money amount,
-        string description,
-        PaymentMethod paymentMethod,
-        string? checkOrTransferNumber,
-        string? accountNumber,
-        string? bank,
-        string customerSignatureName,
-        string receiverName,
-        ReceiptStatus status,
-        string? cancellationReason,
-        DateTime createdAt)
+    public static Receipt Reconstitute(ReceiptReconstitutionDto dto)
+    
     {
         return new Receipt
         {
-            Id = id,
-            ReceiptNumber = receiptNumber,
-            CustomerId = customerId,
-            CustomerName = customerName,
-            Amount = amount,
-            Description = description,
-            PaymentMethod = paymentMethod,
-            CheckOrTransferNumber = checkOrTransferNumber,
-            AccountNumber = accountNumber,
-            Bank = bank,
-            CustomerSignatureName = customerSignatureName,
-            ReceiverName = receiverName,
-            Status = status,
-            CancellationReason = cancellationReason,
-            CreatedAt = createdAt
+            Id = dto.Id,
+            ReceiptNumber = dto.ReceiptNumber,
+            CustomerId = dto.CustomerId,
+            CustomerName = dto.CustomerName,
+            Amount = dto.Amount,
+            Description = dto.Description,
+            PaymentMethod = dto.PaymentMethod,
+            CheckOrTransferNumber = dto.CheckOrTransferNumber,
+            AccountNumber = dto.AccountNumber,
+            Bank = dto.Bank,
+            CustomerSignatureName = dto.CustomerSignatureName,
+            ReceiverName = dto.ReceiverName,
+            Status = dto.Status,
+            CancellationReason = dto.CancellationReason,
+            CreatedAt = dto.CreatedAt
         };
     }
 
     private void ValidatePaymentFields()
     {
-        if (PaymentMethod is PaymentMethod.Check or PaymentMethod.Transfer)
+        switch (PaymentMethod)
         {
-            if (string.IsNullOrWhiteSpace(CheckOrTransferNumber))
-                throw new ArgumentException("Check or transfer number is required for check/transfer payment.");
-        }
-
-        if (PaymentMethod == PaymentMethod.Transfer)
-        {
-            if (string.IsNullOrWhiteSpace(AccountNumber) || string.IsNullOrWhiteSpace(Bank))
+            case PaymentMethod.Check or PaymentMethod.Transfer
+                when string.IsNullOrWhiteSpace(CheckOrTransferNumber):
+                throw new ArgumentException(
+                    "Check or transfer number is required for check/transfer payment.");
+            case PaymentMethod.Transfer when string.IsNullOrWhiteSpace(AccountNumber) || string.IsNullOrWhiteSpace(Bank):
                 throw new ArgumentException("Account number and Bank are required for transfer payment.");
         }
     }
@@ -125,10 +109,14 @@ public sealed class Receipt
     public void Cancel(string reason)
     {
         if (Status == ReceiptStatus.Cancelled)
+        {
             throw new InvalidOperationException("Receipt is already cancelled.");
+        }
 
         if (string.IsNullOrWhiteSpace(reason))
+        {
             throw new ArgumentException("Cancellation reason must be provided.", nameof(reason));
+        }
 
         Status = ReceiptStatus.Cancelled;
         CancellationReason = reason;

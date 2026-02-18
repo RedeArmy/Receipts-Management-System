@@ -8,8 +8,10 @@ public sealed class Money
     public Money(decimal amount, string currency = "GTQ")
     {
         if (amount < 0)
+        {
             throw new ArgumentException("Amount cannot be negative", nameof(amount));
-
+        }
+        
         Amount = amount;
         Currency = currency;
     }
@@ -18,7 +20,9 @@ public sealed class Money
     public Money Add(Money other)
     {
         if (Currency != other.Currency)
+        {
             throw new InvalidOperationException("Cannot add amounts with different currencies");
+        }
         
         return new Money(Amount + other.Amount, Currency);
     }
