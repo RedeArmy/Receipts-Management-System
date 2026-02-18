@@ -140,7 +140,9 @@ public sealed class Receipt
     public void UpdateReceipt(Money amount, string description)
     {
         if (Status == ReceiptStatus.Cancelled)
+        {
             throw new InvalidOperationException("Cannot update a cancelled receipt.");
+        }
 
         Amount = amount ?? throw new ArgumentNullException(nameof(amount));
         Description = string.IsNullOrWhiteSpace(description)
