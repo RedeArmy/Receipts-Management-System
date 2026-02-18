@@ -1,18 +1,50 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - 'v*.*.*'  # Dispara en tags como v1.0.0
+  workflow_run:
+    workflows:
+      - "Build, Test & SonarCloud Analysis"  # Debe coincidir EXACTAMENTE con el name: del otro workflow
+    types:
+      - completed
 
 jobs:
   release:
     name: Build & Publish Release
     runs-on: windows-latest
 
+    if: >-
+      ${{ github.event.workflow_run.conclusion == 'success' &&
+      startsWith(github.event.workflow_run.head_branch, 'v') }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          fetch-depth: 0
+
+      - name: Verify Quality Gate before release
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          TAG_NAME: ${{ github.event.workflow_run.head_branch }}
+        shell: pwsh
+        run: |
+          $projectKey = "${{ secrets.SONAR_ORGANIZATION }}_ReceiptsManagementSystem"
+          $baseUrl = "https://sonarcloud.io/api/qualitygates/project_status"
+          $url = "${baseUrl}?projectKey=${projectKey}&branch=$env:TAG_NAME"
+          $headers = @{ Authorization = "Bearer $env:SONAR_TOKEN" }
+
+          $response = Invoke-RestMethod -Uri $url -Headers $headers -Method Get
+          $status = $response.projectStatus.status
+
+          Write-Host "Quality Gate Status: $status"
+
+          if ($status -ne "OK") {
+            Write-Error "❌ Quality Gate no está en OK (status: $status). Release cancelado."
+            exit 1
+          }
+
+          Write-Host "✅ Quality Gate passed. Procediendo con el release..."
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -35,12 +67,14 @@ jobs:
       - name: Create ZIP package
         shell: powershell
         run: |
-          Compress-Archive -Path ./publish/* -DestinationPath ReceiptsManagementSystem-${{ github.ref_name }}.zip
+          $tagName = "${{ github.event.workflow_run.head_branch }}"
+          Compress-Archive -Path ./publish/* -DestinationPath "ReceiptsManagementSystem-$tagName.zip"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          files: ReceiptsManagementSystem-${{ github.ref_name }}.zip
+          tag_name: ${{ github.event.workflow_run.head_branch }}
+          files: ReceiptsManagementSystem-${{ github.event.workflow_run.head_branch }}.zip
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

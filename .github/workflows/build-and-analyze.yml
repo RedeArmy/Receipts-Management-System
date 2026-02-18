@@ -5,6 +5,8 @@ on:
     branches:
       - main
       - develop
+    tags:
+      - 'v*.*.*'
   pull_request:
     types: [opened, synchronize, reopened]
 
@@ -39,7 +41,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nuget-
 
-      - name: Install SonarCloud scanner
+      - name: Install SonarCloud scanner and coverage tool
         shell: powershell
         run: |
           dotnet tool install --global dotnet-sonarscanner
@@ -50,6 +52,7 @@ jobs:
 
       - name: Begin SonarCloud analysis
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         shell: powershell
         run: |
@@ -77,14 +80,51 @@ jobs:
         run: |
           dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
-      - name: Upload coverage to artifacts
+      - name: Check Quality Gate status
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          IS_PR: ${{ github.event_name == 'pull_request' }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          BRANCH_NAME: ${{ github.ref_name }}
+        shell: pwsh
+        run: |
+          $projectKey = "${{ secrets.SONAR_ORGANIZATION }}_ReceiptsManagementSystem"
+          $baseUrl = "https://sonarcloud.io/api/qualitygates/project_status"
+          $headers = @{ Authorization = "Bearer $env:SONAR_TOKEN" }
+
+          if ($env:IS_PR -eq "true") {
+            $url = "${baseUrl}?projectKey=${projectKey}&pullRequest=$env:PR_NUMBER"
+            Write-Host "🔍 Consultando Quality Gate para PR #$env:PR_NUMBER..."
+          } else {
+            $url = "${baseUrl}?projectKey=${projectKey}&branch=$env:BRANCH_NAME"
+            Write-Host "🔍 Consultando Quality Gate para branch/tag: $env:BRANCH_NAME..."
+          }
+
+          $maxRetries = 10
+          $retryDelay = 20
+          $status = "PENDING"
+
+          for ($i = 1; $i -le $maxRetries; $i++) {
+            Write-Host "[$i/$maxRetries] Consultando Quality Gate..."
+            $response = Invoke-RestMethod -Uri $url -Headers $headers -Method Get
+            $status = $response.projectStatus.status
+            Write-Host "Estado actual: $status"
+
+            if ($status -eq "OK" -or $status -eq "ERROR") { break }
+
+            Write-Host "Esperando $retryDelay segundos para que el análisis finalice..."
+            Start-Sleep -Seconds $retryDelay
+          }
+
+          if ($status -eq "OK") {
+            Write-Host "✅ Quality Gate passed."
+          } else {
+            Write-Error "❌ Quality Gate falló (status: $status). Revisa SonarCloud para ver los detalles."
+            exit 1
+          }
+
+      - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
         with:
           name: code-coverage
           path: coverage.xml
-
-      - name: Check Quality Gate
-        uses: sonarsource/sonarqube-scan-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
