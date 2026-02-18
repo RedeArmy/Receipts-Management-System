@@ -39,7 +39,10 @@ public class MigrationRunner
         foreach (var file in files)
         {
             var migrationId = Path.GetFileName(file);
-            if (applied.Contains(migrationId)) continue;
+            if (applied.Contains(migrationId))
+            {
+                continue;
+            }
 
             var sql = File.ReadAllText(file);
             using var transaction = connection.BeginTransaction();

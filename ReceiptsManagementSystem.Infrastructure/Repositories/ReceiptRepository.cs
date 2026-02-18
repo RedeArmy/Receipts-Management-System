@@ -113,7 +113,9 @@ public sealed class ReceiptRepository : IReceiptRepository
     public async Task CancelAsync(Guid id, string reason, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(reason))
+        {
             throw new ArgumentException("Cancellation reason is required.", nameof(reason));
+        }
 
         using var connection = new SqliteConnection(_connectionString);
         await connection.OpenAsync(cancellationToken);
