@@ -69,26 +69,40 @@ public sealed class Receipt
         Amount = null!;
     }
 
-    public static Receipt Reconstitute(ReceiptReconstitutionDto dto)
-    
+    public static Receipt Reconstitute(
+        Guid id,
+        int receiptNumber,
+        CustomerId customerId,
+        string customerName,
+        Money amount,
+        string description,
+        PaymentMethod paymentMethod,
+        string? checkOrTransferNumber,
+        string? accountNumber,
+        string? bank,
+        string customerSignatureName,
+        string receiverName,
+        ReceiptStatus status,
+        string? cancellationReason,
+        DateTime createdAt)
     {
         return new Receipt
         {
-            Id = dto.Id,
-            ReceiptNumber = dto.ReceiptNumber,
-            CustomerId = dto.CustomerId,
-            CustomerName = dto.CustomerName,
-            Amount = dto.Amount,
-            Description = dto.Description,
-            PaymentMethod = dto.PaymentMethod,
-            CheckOrTransferNumber = dto.CheckOrTransferNumber,
-            AccountNumber = dto.AccountNumber,
-            Bank = dto.Bank,
-            CustomerSignatureName = dto.CustomerSignatureName,
-            ReceiverName = dto.ReceiverName,
-            Status = dto.Status,
-            CancellationReason = dto.CancellationReason,
-            CreatedAt = dto.CreatedAt
+            Id = id,
+            ReceiptNumber = receiptNumber,
+            CustomerId = customerId,
+            CustomerName = customerName,
+            Amount = amount,
+            Description = description,
+            PaymentMethod = paymentMethod,
+            CheckOrTransferNumber = checkOrTransferNumber,
+            AccountNumber = accountNumber,
+            Bank = bank,
+            CustomerSignatureName = customerSignatureName,
+            ReceiverName = receiverName,
+            Status = status,
+            CancellationReason = cancellationReason,
+            CreatedAt = createdAt
         };
     }
 
