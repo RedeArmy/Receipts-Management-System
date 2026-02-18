@@ -7,7 +7,9 @@ public sealed class CustomerId
     public CustomerId(Guid value)
     {
         if (value == Guid.Empty)
+        {
             throw new ArgumentException("CustomerId cannot be empty", nameof(value));
+        }
         
         Value = value;
     }
