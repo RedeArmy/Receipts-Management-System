@@ -57,11 +57,13 @@ jobs:
         shell: powershell
         run: |
           dotnet sonarscanner begin `
-            /k:"${{ secrets.SONAR_ORGANIZATION }}_ReceiptsManagementSystem" `
+            /k:"${{ secrets.SONAR_ORGANIZATION }}_${{ github.event.repository.name }}" `
             /o:"${{ secrets.SONAR_ORGANIZATION }}" `
             /d:sonar.token="${{ secrets.SONAR_TOKEN }}" `
             /d:sonar.host.url="https://sonarcloud.io" `
-            /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml
+            /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml `
+            /d:sonar.projectBaseDir="." `
+            /d:sonar.exclusions="**/bin/**,**/obj/**"
 
       - name: Build solution
         run: dotnet build --no-restore --configuration Release
@@ -88,7 +90,7 @@ jobs:
           BRANCH_NAME: ${{ github.ref_name }}
         shell: pwsh
         run: |
-          $projectKey = "${{ secrets.SONAR_ORGANIZATION }}_ReceiptsManagementSystem"
+          $projectKey = "${{ secrets.SONAR_ORGANIZATION }}_${{ github.event.repository.name }}"
           $baseUrl = "https://sonarcloud.io/api/qualitygates/project_status"
           $headers = @{ Authorization = "Bearer $env:SONAR_TOKEN" }
 
