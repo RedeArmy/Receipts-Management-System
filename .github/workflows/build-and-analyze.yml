@@ -2,38 +2,34 @@ name: Build, Test & SonarCloud Analysis
 
 on:
   push:
-    branches:
-      - main
-      - develop
-    tags:
-      - 'v*.*.*'
+    branches: [master, main, develop]
+    tags: ['v*.*.*']
   pull_request:
     types: [opened, synchronize, reopened]
 
 jobs:
   build-and-analyze:
-    name: Build, Test & Analyze
     runs-on: windows-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Necesario para SonarCloud
+          fetch-depth: 0
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: 8.0.x
+          cache: true
 
-      - name: Cache SonarCloud packages
+      - name: Cache SonarCloud
         uses: actions/cache@v4
         with:
-          path: ~\sonar\cache
+          path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
 
-      - name: Cache NuGet packages
+      - name: Cache NuGet
         uses: actions/cache@v4
         with:
           path: ~/.nuget/packages
@@ -41,92 +37,70 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nuget-
 
-      - name: Install SonarCloud scanner and coverage tool
-        shell: powershell
+      - name: Install SonarScanner
         run: |
-          dotnet tool install --global dotnet-sonarscanner
-          dotnet tool install --global dotnet-coverage
+          dotnet tool update --global dotnet-sonarscanner
+          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
 
-      - name: Restore dependencies
+      - name: Restore
         run: dotnet restore
 
-      - name: Begin SonarCloud analysis
+      - name: Sonar Begin
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        shell: powershell
         run: |
           dotnet sonarscanner begin `
             /k:"${{ secrets.SONAR_ORGANIZATION }}_${{ github.event.repository.name }}" `
             /o:"${{ secrets.SONAR_ORGANIZATION }}" `
             /d:sonar.token="${{ secrets.SONAR_TOKEN }}" `
             /d:sonar.host.url="https://sonarcloud.io" `
-            /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml `
-            /d:sonar.projectBaseDir="." `
+            /d:sonar.qualitygate.wait=true `
+            /d:sonar.cs.opencover.reportsPaths="**/coverage/**/coverage.opencover.xml" `
             /d:sonar.exclusions="**/bin/**,**/obj/**"
 
-      - name: Build solution
-        run: dotnet build --no-restore --configuration Release
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
 
-      - name: Run tests with coverage
-        shell: powershell
-        run: |
-          dotnet-coverage collect `
-            "dotnet test --no-build --configuration Release --verbosity normal" `
-            -f xml -o coverage.xml
-
-      - name: End SonarCloud analysis
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        shell: powershell
-        run: |
-          dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
-
-      - name: Check Quality Gate status
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          IS_PR: ${{ github.event_name == 'pull_request' }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          BRANCH_NAME: ${{ github.ref_name }}
+      - name: Test with coverage
         shell: pwsh
         run: |
-          $projectKey = "${{ secrets.SONAR_ORGANIZATION }}_${{ github.event.repository.name }}"
-          $baseUrl = "https://sonarcloud.io/api/qualitygates/project_status"
-          $headers = @{ Authorization = "Bearer $env:SONAR_TOKEN" }
-
-          if ($env:IS_PR -eq "true") {
-            $url = "${baseUrl}?projectKey=${projectKey}&pullRequest=$env:PR_NUMBER"
-            Write-Host "🔍 Consultando Quality Gate para PR #$env:PR_NUMBER..."
-          } else {
-            $url = "${baseUrl}?projectKey=${projectKey}&branch=$env:BRANCH_NAME"
-            Write-Host "🔍 Consultando Quality Gate para branch/tag: $env:BRANCH_NAME..."
+          $merge = Test-Path "./coverage/coverage.opencover.xml"
+          if ($merge) {
+            dotnet test `
+              --configuration Release `
+              --no-build `
+              /p:CollectCoverage=true `
+              /p:CoverletOutputFormat=opencover `
+              /p:CoverletOutput=./coverage/ `
+              /p:MergeWith="./coverage/coverage.opencover.xml"
+          }
+          else {
+            dotnet test `
+              --configuration Release `
+              --no-build `
+              /p:CollectCoverage=true `
+              /p:CoverletOutputFormat=opencover `
+              /p:CoverletOutput=./coverage/
           }
 
-          $maxRetries = 10
-          $retryDelay = 20
-          $status = "PENDING"
-
-          for ($i = 1; $i -le $maxRetries; $i++) {
-            Write-Host "[$i/$maxRetries] Consultando Quality Gate..."
-            $response = Invoke-RestMethod -Uri $url -Headers $headers -Method Get
-            $status = $response.projectStatus.status
-            Write-Host "Estado actual: $status"
-
-            if ($status -eq "OK" -or $status -eq "ERROR") { break }
-
-            Write-Host "Esperando $retryDelay segundos para que el análisis finalice..."
-            Start-Sleep -Seconds $retryDelay
-          }
-
-          if ($status -eq "OK") {
-            Write-Host "✅ Quality Gate passed."
-          } else {
-            Write-Error "❌ Quality Gate falló (status: $status). Revisa SonarCloud para ver los detalles."
+      - name: Dependency security scan
+        run: |
+          dotnet list package --vulnerable --include-transitive
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "Vulnerabilities detected"
             exit 1
           }
 
-      - name: Upload coverage artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: code-coverage
-          path: coverage.xml
+      - name: Code format validation
+        run: dotnet format --verify-no-changes --verbosity diagnostic
+
+      - name: Sonar End
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          for ($i=0; $i -lt 3; $i++) {
+            dotnet sonarscanner end `
+              /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+            if ($LASTEXITCODE -eq 0) { break }
+            Start-Sleep -Seconds 10
+          }

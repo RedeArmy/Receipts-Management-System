@@ -2,59 +2,62 @@ name: Release
 
 on:
   workflow_run:
-    workflows:
-      - "Build, Test & SonarCloud Analysis"  # Debe coincidir EXACTAMENTE con el name: del otro workflow
-    types:
-      - completed
+    workflows: ["Build, Test & SonarCloud Analysis"]
+    types: [completed]
 
 jobs:
   release:
-    name: Build & Publish Release
     runs-on: windows-latest
 
-    if: >-
-      ${{ github.event.workflow_run.conclusion == 'success' &&
-      startsWith(github.event.workflow_run.head_branch, 'v') }}
+    if: >
+      ${{
+        github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.event == 'push'
+      }}
 
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
           fetch-depth: 0
 
-      - name: Verify Quality Gate before release
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          TAG_NAME: ${{ github.event.workflow_run.head_branch }}
+      - name: Extract tag
+        id: tag
         shell: pwsh
         run: |
-          $projectKey = "${{ secrets.SONAR_ORGANIZATION }}_ReceiptsManagementSystem"
-          $baseUrl = "https://sonarcloud.io/api/qualitygates/project_status"
-          $url = "${baseUrl}?projectKey=${projectKey}&branch=$env:TAG_NAME"
-          $headers = @{ Authorization = "Bearer $env:SONAR_TOKEN" }
-
-          $response = Invoke-RestMethod -Uri $url -Headers $headers -Method Get
-          $status = $response.projectStatus.status
-
-          Write-Host "Quality Gate Status: $status"
-
-          if ($status -ne "OK") {
-            Write-Error "❌ Quality Gate no está en OK (status: $status). Release cancelado."
+          $tag = git tag --points-at HEAD | Select-Object -First 1
+          if (-not $tag) {
+            Write-Error "No tag found."
             exit 1
           }
-
-          Write-Host "✅ Quality Gate passed. Procediendo con el release..."
+          echo "tag=$tag" >> $env:GITHUB_OUTPUT
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: 8.0.x
+          cache: true
 
-      - name: Restore dependencies
+      - name: Cache NuGet
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+
+      - name: Restore
         run: dotnet restore
 
-      - name: Build Release
+      - name: Dependency scan
+        shell: pwsh
+        run: |
+          dotnet list package --vulnerable --include-transitive
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "Vulnerabilities detected"
+            exit 1
+          }
+
+      - name: Publish
         run: |
           dotnet publish ReceiptsManagementSystem.Presentation\ReceiptsManagementSystem.Presentation.csproj `
             -c Release `
@@ -64,17 +67,21 @@ jobs:
             -p:IncludeNativeLibrariesForSelfExtract=true `
             -o ./publish
 
-      - name: Create ZIP package
-        shell: powershell
+      - name: Package
+        id: package
+        shell: pwsh
         run: |
-          $tagName = "${{ github.event.workflow_run.head_branch }}"
-          Compress-Archive -Path ./publish/* -DestinationPath "ReceiptsManagementSystem-$tagName.zip"
+          $tag = "${{ steps.tag.outputs.tag }}"
+          $date = Get-Date -Format "yyyyMMdd"
+          $file = "ReceiptsManagementSystem-$tag-$date.zip"
+          Compress-Archive -Path ./publish/* -DestinationPath $file
+          echo "artifact=$file" >> $env:GITHUB_OUTPUT
 
-      - name: Create GitHub Release
+      - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.event.workflow_run.head_branch }}
-          files: ReceiptsManagementSystem-${{ github.event.workflow_run.head_branch }}.zip
+          tag_name: ${{ steps.tag.outputs.tag }}
+          files: ${{ steps.package.outputs.artifact }}
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
