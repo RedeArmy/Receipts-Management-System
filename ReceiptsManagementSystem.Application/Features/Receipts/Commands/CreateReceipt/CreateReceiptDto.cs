@@ -9,7 +9,8 @@ public sealed class CreateReceiptDto
     public string CustomerName { get; set; } = string.Empty;
 
     // Monto
-    public MoneyDto Amount { get; set; } = new();
+    public decimal Amount { get; set; }
+    public string Currency { get; set; } = "GTQ";
 
     // Concepto
     public string Description { get; set; } = string.Empty;
@@ -18,8 +19,8 @@ public sealed class CreateReceiptDto
     public PaymentMethod PaymentMethod { get; set; }
 
     // Campos adicionales según el método de pago
-    public string? CheckOrTransferNumber { get; set; } 
-    public string? AccountNumber { get; set; } 
+    public string? CheckOrTransferNumber { get; set; }
+    public string? AccountNumber { get; set; }
     public string? Bank { get; set; }
 
     // Saldo pendiente
@@ -32,10 +33,4 @@ public sealed class CreateReceiptDto
     public ReceiptStatus Status { get; set; } = ReceiptStatus.Active;
     public string? CancellationReason { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-}
-
-public sealed class MoneyDto
-{
-    public decimal Amount { get; set; }
-    public string Currency { get; set; } = "GTQ";
 }
