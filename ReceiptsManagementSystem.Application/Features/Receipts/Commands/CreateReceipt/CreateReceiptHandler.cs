@@ -17,12 +17,12 @@ public sealed class CreateReceiptHandler : IRequestHandler<CreateReceiptCommand,
     public async Task<Guid> Handle(CreateReceiptCommand request, CancellationToken cancellationToken)
     {
         var dto = request.ReceiptDto;
-        
+
         var nextNumber = await _receiptRepository.GetNextReceiptNumberAsync(cancellationToken);
-        
+
         var customerId = new CustomerId(dto.CustomerId);
-        var amount     = new Money(dto.Amount.Amount, dto.Amount.Currency);
-       
+        var amount     = new Money(dto.Amount, dto.Currency);
+
         var receipt = new Receipt(
             receiptNumber:         nextNumber,
             customerId:            customerId,
