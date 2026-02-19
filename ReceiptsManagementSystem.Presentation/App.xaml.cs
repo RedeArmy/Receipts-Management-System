@@ -14,7 +14,7 @@ namespace ReceiptsManagementSystem.Presentation;
 /// <summary>
 /// Interaction logic for App.xaml
 /// </summary>
-public partial class App : System.Windows.Application
+public partial class App
 {
     private readonly IHost _host;
 
