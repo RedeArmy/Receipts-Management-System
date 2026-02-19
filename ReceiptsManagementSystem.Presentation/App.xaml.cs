@@ -6,6 +6,8 @@ using ReceiptsManagementSystem.Application;
 using ReceiptsManagementSystem.Infrastructure;
 using ReceiptsManagementSystem.Infrastructure.Database;
 using ReceiptsManagementSystem.Presentation.Configuration;
+using ReceiptsManagementSystem.Presentation.ViewModels;
+using ReceiptsManagementSystem.Presentation.ViewModels.Receipts;
 
 namespace ReceiptsManagementSystem.Presentation;
 
@@ -39,6 +41,12 @@ public partial class App : System.Windows.Application
                                  .Get<DatabaseSettings>()
                              ?? throw new InvalidOperationException(
                                  "Falta la sección 'Database' en appsettings.json");
+
+                services.AddTransient<ReceiptListViewModel>();
+                services.AddTransient<CreateReceiptViewModel>();
+
+                services.AddSingleton<MainViewModel>();
+
                 services.AddApplication();
                 services.AddInfrastructure(dbSettings.ResolvedConnectionString);
                 services.AddTransient<MainWindow>();
