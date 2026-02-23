@@ -1,3 +1,4 @@
+using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ReceiptsManagementSystem.Presentation.ViewModels.Base;
@@ -41,5 +42,20 @@ public sealed partial class MainViewModel : BaseViewModel
         CurrentViewModel = _createReceiptViewModel;
         ActiveMenu       = "CreateReceipt";
         Title            = "Nuevo Recibo";
+    }
+
+    [RelayCommand]
+    private void Exit()
+    {
+        var result = MessageBox.Show(
+            "¿Está seguro que desea salir del sistema?",
+            "Confirmar salida",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Question);
+
+        if (result == MessageBoxResult.Yes)
+        {
+            System.Windows.Application.Current.Shutdown();
+        }
     }
 }
