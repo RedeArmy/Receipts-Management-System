@@ -7,7 +7,7 @@
         xmlns:receipts="clr-namespace:ReceiptsManagementSystem.Presentation.ViewModels.Receipts"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=viewModels:MainViewModel}"
-        Title="SISTEMAS DE RECIBOS"
+        Title="{Binding Localization.AppTitle}"
         Height="800"
         Width="1400"
         WindowStartupLocation="CenterScreen"
@@ -29,19 +29,18 @@
                 </Grid.RowDefinitions>
 
                 <StackPanel Grid.Row="0" Margin="20,30,20,40">
-                    <TextBlock Text="📋 RECIBOS GT"
+                    <TextBlock Text="{Binding Localization.AppTitle}"
                                FontSize="22"
                                FontWeight="Bold"
                                Foreground="{StaticResource TextOnDarkColor}" />
-                    <TextBlock Text="Gestión Profesional"
+                    <TextBlock Text="{Binding Localization.AppSubtitle}"
                                FontSize="12"
                                Foreground="{StaticResource TextSecondaryColor}"
                                Margin="0,4,0,0" />
                 </StackPanel>
 
                 <StackPanel Grid.Row="1">
-
-                    <Button Content="📄 LISTA RECIBOS"
+                    <Button Content="{Binding Localization.NavReceipts}"
                             Command="{Binding NavigateToReceiptListCommand}">
                         <Button.Style>
                             <Style TargetType="Button" BasedOn="{StaticResource SidebarButton}">
@@ -55,7 +54,7 @@
                         </Button.Style>
                     </Button>
 
-                    <Button Content="➕ NUEVO RECIBO"
+                    <Button Content="{Binding Localization.NavNewReceipt}"
                             Command="{Binding NavigateToCreateReceiptCommand}">
                         <Button.Style>
                             <Style TargetType="Button" BasedOn="{StaticResource SidebarButton}">
@@ -73,22 +72,89 @@
                 <StackPanel Grid.Row="2" Margin="20,0,20,30">
                     <Separator Background="{StaticResource HoverColor}"
                                Margin="0,0,0,20" />
+
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Center"
+                                Margin="0,0,0,15">
+
+                        <Button Tag="es-GT"
+                                ToolTip="{Binding Localization.LanguageSpanish}"
+                                Command="{Binding ChangeLanguageCommand}"
+                                CommandParameter="es-GT"
+                                Width="60"
+                                Height="35"
+                                Margin="0,0,8,0">
+
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource SecondaryButton}">
+                                    <Style.Triggers>
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding SelectedLanguage}" Value="es-GT"/>
+                                                <Condition Binding="{Binding Tag, RelativeSource={RelativeSource Self}}" Value="es-GT"/>
+                                            </MultiDataTrigger.Conditions>
+                                            <Setter Property="BorderBrush" Value="#0078D7"/>
+                                            <Setter Property="BorderThickness" Value="2"/>
+                                            <Setter Property="Background" Value="#E5F1FB"/>
+                                        </MultiDataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+
+                            <Image Source="/Assets/Flags/spain.png"
+                                   Width="24"
+                                   Height="16"
+                                   Stretch="Uniform"/>
+                        </Button>
+
+                        <Button Tag="en-US"
+                                ToolTip="{Binding Localization.LanguageEnglish}"
+                                Command="{Binding ChangeLanguageCommand}"
+                                CommandParameter="en-US"
+                                Width="60"
+                                Height="35">
+
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource SecondaryButton}">
+                                    <Style.Triggers>
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding SelectedLanguage}" Value="en-US"/>
+                                                <Condition Binding="{Binding Tag, RelativeSource={RelativeSource Self}}" Value="en-US"/>
+                                            </MultiDataTrigger.Conditions>
+                                            <Setter Property="BorderBrush" Value="#0078D7"/>
+                                            <Setter Property="BorderThickness" Value="2"/>
+                                            <Setter Property="Background" Value="#E5F1FB"/>
+                                        </MultiDataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+
+                            <Image Source="/Assets/Flags/uk.png"
+                                   Width="24"
+                                   Height="16"
+                                   Stretch="Uniform"/>
+                        </Button>
+
+                    </StackPanel>
+
                     <Button Command="{Binding ExitCommand}"
                             Style="{StaticResource SidebarButton}"
                             Margin="8,4,8,15"
                             Foreground="{StaticResource DangerColor}">
                         <StackPanel Orientation="Horizontal">
-                            <!-- Ícono de salida (puerta con flecha) -->
                             <Viewbox Width="16" Height="16" Margin="0,0,8,0">
                                 <Canvas Width="24" Height="24">
-                                    <Path Data="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"
+                                    <Path Data="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5-5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"
                                           Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}" />
                                 </Canvas>
                             </Viewbox>
-                            <TextBlock Text="SALIR" VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding Localization.NavExit}"
+                                       VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
-                    <TextBlock Text="v1.0.0"
+
+                    <TextBlock Text="{Binding Localization.Version}"
                                FontSize="11"
                                Foreground="{StaticResource TextSecondaryColor}"
                                HorizontalAlignment="Center" />
