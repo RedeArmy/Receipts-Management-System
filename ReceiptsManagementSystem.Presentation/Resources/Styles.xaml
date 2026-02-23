@@ -1,6 +1,8 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:converters="clr-namespace:ReceiptsManagementSystem.Presentation.Converters">
 
+    <converters:LanguageSelectedConverter x:Key="LangSelectedConverter"/>
     <SolidColorBrush x:Key="PrimaryColor" Color="#2563EB" />
     <SolidColorBrush x:Key="PrimaryDarkColor" Color="#1E40AF" />
     <SolidColorBrush x:Key="AccentColor" Color="#10B981" />
@@ -90,6 +92,7 @@
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="Padding" Value="16,10" />
         <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontFamily" Value="Segoe UI Emoji"/>
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="Template">
             <Setter.Value>
@@ -161,6 +164,21 @@
                 <Setter Property="Background" Value="#991B1B" />
                 <Setter Property="Foreground" Value="White" />
             </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="LanguageButton"
+           TargetType="Button"
+           BasedOn="{StaticResource SecondaryButton}">
+
+        <Style.Triggers>
+
+            <DataTrigger Binding="{Binding SelectedLanguage}" Value="es-GT">
+                <Setter Property="BorderBrush" Value="#0078D7"/>
+                <Setter Property="BorderThickness" Value="2"/>
+                <Setter Property="Background" Value="#E5F1FB"/>
+            </DataTrigger>
+
         </Style.Triggers>
     </Style>
 
