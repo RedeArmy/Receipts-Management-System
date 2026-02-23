@@ -12,9 +12,9 @@ public sealed partial class MainViewModel : BaseViewModel
 {
     private readonly ReceiptListViewModel _receiptListViewModel;
     private readonly CreateReceiptViewModel _createReceiptViewModel;
-    private readonly LocalizationService _localizationService;
+    private readonly ILocalizationService _localization;
 
-    public LocalizationService Localization => _localizationService;
+    public ILocalizationService Localization => _localization;
 
     [ObservableProperty]
     private BaseViewModel _currentViewModel = null!;
@@ -23,19 +23,22 @@ public sealed partial class MainViewModel : BaseViewModel
     private string _activeMenu = "Receipts";
 
     [ObservableProperty]
-    private string _selectedLanguage = "es-GT";
+    private string _selectedLanguage = "es";
 
     public MainViewModel(
         ReceiptListViewModel receiptListViewModel,
-        CreateReceiptViewModel createReceiptViewModel)
+        CreateReceiptViewModel createReceiptViewModel,
+        ILocalizationService localization)
     {
         _receiptListViewModel   = receiptListViewModel;
         _createReceiptViewModel = createReceiptViewModel;
-        _localizationService = LocalizationService.Instance;
+        _localization = localization;
 
-        _localizationService.PropertyChanged += (_, _) =>
+        SelectedLanguage = _localization.CurrentLanguage;
+
+        _localization.PropertyChanged += (_, _) =>
         {
-            OnPropertyChanged(nameof(Localization));
+            SelectedLanguage = _localization.CurrentLanguage;
             UpdateTitles();
         };
 
@@ -61,7 +64,7 @@ public sealed partial class MainViewModel : BaseViewModel
     [RelayCommand]
     private void ChangeLanguage(string cultureCode)
     {
-        _localizationService.ChangeLanguage(cultureCode);
+        _localization.ChangeLanguage(cultureCode);
         SelectedLanguage = cultureCode;
     }
 

@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ReceiptsManagementSystem.Presentation.Services;
@@ -7,22 +6,20 @@ namespace ReceiptsManagementSystem.Presentation.ViewModels;
 
 public sealed partial class LanguageSelectorViewModel : ObservableObject
 {
-    private readonly LocalizationService _localizationService;
+    private readonly ILocalizationService _localizationService;
 
     [ObservableProperty]
     private string _currentLanguage;
 
-    public List<LanguageOption> AvailableLanguages { get; }
 
-    public LanguageSelectorViewModel()
+    public LanguageSelectorViewModel(ILocalizationService localizationService)
     {
-        _localizationService = LocalizationService.Instance;
-        _currentLanguage = _localizationService.CurrentCulture.Name;
+        _localizationService = localizationService;
+        _currentLanguage = _localizationService.CurrentLanguageCode;
 
-        AvailableLanguages = new List<LanguageOption>
+        _localizationService.PropertyChanged += (_, _) =>
         {
-            new("es-GT", "🇬🇹 Español"),
-            new("en-US", "🇺🇸 English")
+            CurrentLanguage = _localizationService.CurrentLanguageCode;
         };
     }
 
@@ -34,4 +31,4 @@ public sealed partial class LanguageSelectorViewModel : ObservableObject
     }
 }
 
-public sealed record LanguageOption(string Code, string Display);
+public sealed record LanguageOption;

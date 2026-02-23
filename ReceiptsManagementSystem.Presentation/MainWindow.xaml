@@ -90,7 +90,7 @@
                                     <Style.Triggers>
                                         <MultiDataTrigger>
                                             <MultiDataTrigger.Conditions>
-                                                <Condition Binding="{Binding SelectedLanguage}" Value="es-GT"/>
+                                                <Condition Binding="{Binding SelectedLanguage}" Value="es"/>
                                                 <Condition Binding="{Binding Tag, RelativeSource={RelativeSource Self}}" Value="es-GT"/>
                                             </MultiDataTrigger.Conditions>
                                             <Setter Property="BorderBrush" Value="#0078D7"/>
