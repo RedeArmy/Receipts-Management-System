@@ -30,5 +30,3 @@ public sealed partial class LanguageSelectorViewModel : ObservableObject
         CurrentLanguage = cultureCode;
     }
 }
-
-public sealed record LanguageOption;
