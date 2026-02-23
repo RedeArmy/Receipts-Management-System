@@ -11,10 +11,7 @@ using ReceiptsManagementSystem.Presentation.ViewModels.Receipts;
 
 namespace ReceiptsManagementSystem.Presentation;
 
-/// <summary>
-/// Interaction logic for App.xaml
-/// </summary>
-public partial class App
+public partial class App : System.Windows.Application
 {
     private readonly IHost _host;
 
@@ -23,7 +20,8 @@ public partial class App
         _host = Host.CreateDefaultBuilder()
             .ConfigureAppConfiguration((context, config) =>
             {
-                config.AddJsonFile("appsettings.json",
+                config.AddJsonFile(
+                    "appsettings.json",
                     optional: false,
                     reloadOnChange: false);
 
@@ -37,18 +35,21 @@ public partial class App
             .ConfigureServices((context, services) =>
             {
                 var dbSettings = context.Configuration
-                                 .GetSection(DatabaseSettings.SectionName)
-                                 .Get<DatabaseSettings>()
-                             ?? throw new InvalidOperationException(
-                                 "Falta la sección 'Database' en appsettings.json");
+                    .GetSection(DatabaseSettings.SectionName)
+                    .Get<DatabaseSettings>()
+                    ?? throw new InvalidOperationException(
+                        "Falta la sección 'Database' en appsettings.json");
 
-                services.AddTransient<ReceiptListViewModel>();
-                services.AddTransient<CreateReceiptViewModel>();
-
-                services.AddSingleton<MainViewModel>();
-
+                // Application e Infrastructure
                 services.AddApplication();
                 services.AddInfrastructure(dbSettings.ResolvedConnectionString);
+
+                // ViewModels
+                services.AddTransient<ReceiptListViewModel>();
+                services.AddTransient<CreateReceiptViewModel>();
+                services.AddSingleton<MainViewModel>();
+
+                // MainWindow
                 services.AddTransient<MainWindow>();
             })
             .Build();
@@ -58,13 +59,13 @@ public partial class App
     {
         base.OnStartup(e);
 
-        // Iniciar host
         await _host.StartAsync();
 
-        // Migraciones en OnStartup — aquí podemos manejar errores y mostrarlos
         try
         {
-            var migrationRunner = _host.Services.GetRequiredService<MigrationRunner>();
+            var migrationRunner = _host.Services
+                .GetRequiredService<MigrationRunner>();
+
             migrationRunner.Migrate();
         }
         catch (Exception ex)
@@ -79,9 +80,23 @@ public partial class App
             return;
         }
 
-        // Abrir MainWindow desde DI para poder inyectar servicios y ViewModels
-        var mainWindow = _host.Services.GetRequiredService<MainWindow>();
-        mainWindow.Show();
+        try
+        {
+            var mainWindow = _host.Services.GetRequiredService<MainWindow>();
+            mainWindow.Show();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(
+                $"Error:\n\n{ex.Message}\n\n" +
+                $"Stack Trace:\n{ex.StackTrace}\n\n" +
+                $"Inner Exception:\n{ex.InnerException?.Message}",
+                "Critical Error",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+
+            Shutdown(1);
+        }
     }
 
     protected override async void OnExit(ExitEventArgs e)
