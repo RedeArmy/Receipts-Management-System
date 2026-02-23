@@ -6,12 +6,13 @@ using ReceiptsManagementSystem.Application;
 using ReceiptsManagementSystem.Infrastructure;
 using ReceiptsManagementSystem.Infrastructure.Database;
 using ReceiptsManagementSystem.Presentation.Configuration;
+using ReceiptsManagementSystem.Presentation.Services;
 using ReceiptsManagementSystem.Presentation.ViewModels;
 using ReceiptsManagementSystem.Presentation.ViewModels.Receipts;
 
 namespace ReceiptsManagementSystem.Presentation;
 
-public partial class App : System.Windows.Application
+public partial class App
 {
     private readonly IHost _host;
 
@@ -43,6 +44,9 @@ public partial class App : System.Windows.Application
                 // Application e Infrastructure
                 services.AddApplication();
                 services.AddInfrastructure(dbSettings.ResolvedConnectionString);
+
+                services.AddSingleton<ILocalizationService, LocalizationService>();
+                services.AddTransient<LanguageSelectorViewModel>();
 
                 // ViewModels
                 services.AddTransient<ReceiptListViewModel>();
