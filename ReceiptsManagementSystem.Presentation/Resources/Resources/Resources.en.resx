@@ -166,4 +166,41 @@
     <data name="Language_English" xml:space="preserve">
     <value>English</value>
   </data>
+    <data name="Nav_Settings" xml:space="preserve">
+        <value>Settings</value>
+    </data>
+    <data name="Page_Settings" xml:space="preserve">
+        <value>Settings</value>
+    </data>
+    <data name="Settings_Language" xml:space="preserve">
+        <value>Application language</value>
+    </data>
+    <data name="Settings_Language_Description" xml:space="preserve">
+        <value>Select your preferred language. This setting will be saved and applied every time you open the application.</value>
+    </data>
+    <data name="Settings_Language_Auto" xml:space="preserve">
+        <value>Detect automatically</value>
+    </data>
+    <data name="Settings_Save_Button" xml:space="preserve">
+        <value>Save changes</value>
+    </data>
+    <data name="Settings_Saved_Message" xml:space="preserve">
+        <value>Settings saved successfully</value>
+    </data>
+    <data name="Spanish_Languages" xml:space="preserve">
+        <value>spa Spanish</value>
+    </data>
+    <data name="English_Languages" xml:space="preserve">
+        <value>eng English</value>
+    </data>
+    <data name="Settings_Info_Title" xml:space="preserve">
+        <value>Information</value>
+    </data>
+    <data name="Settings_Info_Description" xml:space="preserve">
+        <value>- Flag buttons in the menu change the language temporarily for this session only.
+
+- To change the language permanently, select your preferred language here and click 'Save changes'.
+
+- 'Detect automatically' uses your operating system language.</value>
+    </data>
 </root>

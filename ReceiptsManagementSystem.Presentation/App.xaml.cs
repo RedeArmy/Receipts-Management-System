@@ -9,6 +9,7 @@ using ReceiptsManagementSystem.Presentation.Configuration;
 using ReceiptsManagementSystem.Presentation.Services;
 using ReceiptsManagementSystem.Presentation.ViewModels;
 using ReceiptsManagementSystem.Presentation.ViewModels.Receipts;
+using ReceiptsManagementSystem.Presentation.ViewModels.Settings;
 
 namespace ReceiptsManagementSystem.Presentation;
 
@@ -45,18 +46,30 @@ public partial class App
                 services.AddApplication();
                 services.AddInfrastructure(dbSettings.ResolvedConnectionString);
 
-                services.AddSingleton<ILocalizationService, LocalizationService>();
+                services.AddSingleton<UserPreferencesService>();
+                services.AddSingleton<ILocalizationService>(_ => LocalizationService.Instance);
                 services.AddTransient<LanguageSelectorViewModel>();
 
                 // ViewModels
                 services.AddTransient<ReceiptListViewModel>();
                 services.AddTransient<CreateReceiptViewModel>();
+                services.AddTransient<SettingsViewModel>();
                 services.AddSingleton<MainViewModel>();
 
                 // MainWindow
                 services.AddTransient<MainWindow>();
             })
             .Build();
+
+        InitializeLanguage();
+    }
+
+    private void InitializeLanguage()
+    {
+        var preferencesService = _host.Services.GetRequiredService<UserPreferencesService>();
+        var localizationService = _host.Services.GetRequiredService<ILocalizationService>();
+
+        localizationService.InitializeLanguage(preferencesService.PreferredLanguage);
     }
 
     protected override async void OnStartup(StartupEventArgs e)
