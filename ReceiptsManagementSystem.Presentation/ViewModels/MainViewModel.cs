@@ -5,7 +5,6 @@ using ReceiptsManagementSystem.Presentation.Services;
 using ReceiptsManagementSystem.Presentation.ViewModels.Base;
 using ReceiptsManagementSystem.Presentation.ViewModels.Receipts;
 using ReceiptsManagementSystem.Presentation.ViewModels.Settings;
-using Strings = ReceiptsManagementSystem.Presentation.Resources.Resources.Resources;
 
 namespace ReceiptsManagementSystem.Presentation.ViewModels;
 
@@ -45,7 +44,7 @@ public sealed partial class MainViewModel : BaseViewModel
     {
         CurrentViewModel = _receiptListViewModel;
         ActiveMenu       = "Receipts";
-        Title            = Strings.Page_Receipts;
+        Title            = _localization.GetString("Page_Receipts");
     }
 
     [RelayCommand]
@@ -53,7 +52,7 @@ public sealed partial class MainViewModel : BaseViewModel
     {
         CurrentViewModel = _createReceiptViewModel;
         ActiveMenu       = "CreateReceipt";
-        Title            = Strings.Page_NewReceipt;
+        Title            = _localization.GetString("Page_NewReceipt");
     }
 
     [RelayCommand]
@@ -61,7 +60,7 @@ public sealed partial class MainViewModel : BaseViewModel
     {
         CurrentViewModel = _settingsViewModel;
         ActiveMenu = "Settings";
-        Title = Strings.Page_Settings;
+        Title = _localization.GetString("Page_Settings");
     }
 
     [RelayCommand]
@@ -74,8 +73,8 @@ public sealed partial class MainViewModel : BaseViewModel
     private void Exit()
     {
         var result = MessageBox.Show(
-        Strings.Message_ExitConfirmation,
-        Strings.Message_ExitTitle,
+            _localization.GetString("Message_ExitConfirmation"),
+            _localization.GetString("Message_ExitTitle"),
         MessageBoxButton.YesNo,
         MessageBoxImage.Question);
 
