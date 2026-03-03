@@ -4,7 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using ReceiptsManagementSystem.Presentation.Services;
 using ReceiptsManagementSystem.Presentation.ViewModels.Base;
 using ReceiptsManagementSystem.Presentation.ViewModels.Receipts;
-using Strings = ReceiptsManagementSystem.Presentation.Resources.Resources.Resources;
+using ReceiptsManagementSystem.Presentation.ViewModels.Settings;
 
 namespace ReceiptsManagementSystem.Presentation.ViewModels;
 
@@ -12,9 +12,8 @@ public sealed partial class MainViewModel : BaseViewModel
 {
     private readonly ReceiptListViewModel _receiptListViewModel;
     private readonly CreateReceiptViewModel _createReceiptViewModel;
+    private readonly SettingsViewModel _settingsViewModel;
     private readonly ILocalizationService _localization;
-
-    public ILocalizationService Localization => _localization;
 
     [ObservableProperty]
     private BaseViewModel _currentViewModel = null!;
@@ -22,25 +21,20 @@ public sealed partial class MainViewModel : BaseViewModel
     [ObservableProperty]
     private string _activeMenu = "Receipts";
 
-    [ObservableProperty]
-    private string _selectedLanguage = "es";
+    public ILocalizationService Localization => _localization;
 
     public MainViewModel(
         ReceiptListViewModel receiptListViewModel,
         CreateReceiptViewModel createReceiptViewModel,
+        SettingsViewModel settingsViewModel,
         ILocalizationService localization)
     {
         _receiptListViewModel   = receiptListViewModel;
         _createReceiptViewModel = createReceiptViewModel;
+        _settingsViewModel = settingsViewModel;
         _localization = localization;
 
-        SelectedLanguage = _localization.CurrentLanguage;
-
-        _localization.PropertyChanged += (_, _) =>
-        {
-            SelectedLanguage = _localization.CurrentLanguage;
-            UpdateTitles();
-        };
+        _localization.PropertyChanged += (_, _) => UpdateTitles();
 
         NavigateToReceiptList();
     }
@@ -50,7 +44,7 @@ public sealed partial class MainViewModel : BaseViewModel
     {
         CurrentViewModel = _receiptListViewModel;
         ActiveMenu       = "Receipts";
-        Title            = Strings.Page_Receipts;
+        Title            = _localization.GetString("Page_Receipts");
     }
 
     [RelayCommand]
@@ -58,24 +52,31 @@ public sealed partial class MainViewModel : BaseViewModel
     {
         CurrentViewModel = _createReceiptViewModel;
         ActiveMenu       = "CreateReceipt";
-        Title            = Strings.Page_NewReceipt;
+        Title            = _localization.GetString("Page_NewReceipt");
+    }
+
+    [RelayCommand]
+    private void NavigateToSettings()
+    {
+        CurrentViewModel = _settingsViewModel;
+        ActiveMenu = "Settings";
+        Title = _localization.GetString("Page_Settings");
     }
 
     [RelayCommand]
     private void ChangeLanguage(string cultureCode)
     {
         _localization.ChangeLanguage(cultureCode);
-        SelectedLanguage = cultureCode;
     }
 
     [RelayCommand]
     private void Exit()
     {
         var result = MessageBox.Show(
-            Strings.Message_ExitConfirmation,
-            Strings.Message_ExitTitle,
-            MessageBoxButton.YesNo,
-            MessageBoxImage.Question);
+            _localization.GetString("Message_ExitConfirmation"),
+            _localization.GetString("Message_ExitTitle"),
+        MessageBoxButton.YesNo,
+        MessageBoxImage.Question);
 
         if (result == MessageBoxResult.Yes)
         {
@@ -87,11 +88,15 @@ public sealed partial class MainViewModel : BaseViewModel
     {
         if (CurrentViewModel == _receiptListViewModel)
         {
-            Title = Strings.Page_Receipts;
+            Title = _localization.GetString("Page_Receipts");
         }
         else if (CurrentViewModel == _createReceiptViewModel)
         {
-            Title = Strings.Page_NewReceipt;
+            Title = _localization.GetString("Page_NewReceipt");
+        }
+        else if (CurrentViewModel == _settingsViewModel)
+        {
+            Title = _localization.GetString("Page_Settings");
         }
     }
 }

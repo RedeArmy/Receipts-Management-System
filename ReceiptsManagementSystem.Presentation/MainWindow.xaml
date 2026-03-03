@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModels="clr-namespace:ReceiptsManagementSystem.Presentation.ViewModels"
         xmlns:receipts="clr-namespace:ReceiptsManagementSystem.Presentation.ViewModels.Receipts"
+        xmlns:settings="clr-namespace:ReceiptsManagementSystem.Presentation.ViewModels.Settings"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=viewModels:MainViewModel}"
         Title="{Binding Localization.AppTitle}"
@@ -40,6 +41,7 @@
                 </StackPanel>
 
                 <StackPanel Grid.Row="1">
+
                     <Button Content="{Binding Localization.NavReceipts}"
                             Command="{Binding NavigateToReceiptListCommand}">
                         <Button.Style>
@@ -67,6 +69,20 @@
                             </Style>
                         </Button.Style>
                     </Button>
+
+                    <Button Content="{Binding Localization.NavSettings}"
+                            Command="{Binding NavigateToSettingsCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource SidebarButton}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ActiveMenu}" Value="Settings">
+                                        <Setter Property="Background" Value="{StaticResource PrimaryColor}" />
+                                        <Setter Property="FontWeight" Value="SemiBold" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
                 </StackPanel>
 
                 <StackPanel Grid.Row="2" Margin="20,0,20,30">
@@ -84,13 +100,12 @@
                                 Width="60"
                                 Height="35"
                                 Margin="0,0,8,0">
-
                             <Button.Style>
                                 <Style TargetType="Button" BasedOn="{StaticResource SecondaryButton}">
                                     <Style.Triggers>
                                         <MultiDataTrigger>
                                             <MultiDataTrigger.Conditions>
-                                                <Condition Binding="{Binding SelectedLanguage}" Value="es"/>
+                                                <Condition Binding="{Binding Localization.CurrentLanguageCode}" Value="es"/>
                                                 <Condition Binding="{Binding Tag, RelativeSource={RelativeSource Self}}" Value="es-GT"/>
                                             </MultiDataTrigger.Conditions>
                                             <Setter Property="BorderBrush" Value="#0078D7"/>
@@ -113,13 +128,12 @@
                                 CommandParameter="en-US"
                                 Width="60"
                                 Height="35">
-
                             <Button.Style>
                                 <Style TargetType="Button" BasedOn="{StaticResource SecondaryButton}">
                                     <Style.Triggers>
                                         <MultiDataTrigger>
                                             <MultiDataTrigger.Conditions>
-                                                <Condition Binding="{Binding SelectedLanguage}" Value="en-US"/>
+                                                <Condition Binding="{Binding Localization.CurrentLanguageCode}" Value="en"/>
                                                 <Condition Binding="{Binding Tag, RelativeSource={RelativeSource Self}}" Value="en-US"/>
                                             </MultiDataTrigger.Conditions>
                                             <Setter Property="BorderBrush" Value="#0078D7"/>
@@ -135,7 +149,6 @@
                                    Height="16"
                                    Stretch="Uniform"/>
                         </Button>
-
                     </StackPanel>
 
                     <Button Command="{Binding ExitCommand}"
@@ -162,6 +175,7 @@
             </Grid>
         </Border>
 
+        <!-- CONTENT AREA -->
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
@@ -183,17 +197,73 @@
                             Content="{Binding CurrentViewModel}"
                             Margin="30">
                 <ContentControl.Resources>
+                    <!-- DataTemplate para ReceiptListViewModel -->
                     <DataTemplate DataType="{x:Type receipts:ReceiptListViewModel}">
                         <TextBlock Text="Vista de Recibos (próximamente)"
                                    FontSize="18"
                                    Foreground="{StaticResource TextSecondaryColor}" />
                     </DataTemplate>
 
+                    <!-- DataTemplate para CreateReceiptViewModel -->
                     <DataTemplate DataType="{x:Type receipts:CreateReceiptViewModel}">
                         <TextBlock Text="Vista de Crear Recibo (próximamente)"
                                    FontSize="18"
                                    Foreground="{StaticResource TextSecondaryColor}" />
                     </DataTemplate>
+
+                    <DataTemplate DataType="{x:Type settings:SettingsViewModel}">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel MaxWidth="800">
+
+                                <TextBlock Text="{Binding SettingsLanguageTitle}"
+                                           FontSize="20"
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource TextPrimaryColor}"
+                                           Margin="0,0,0,10" />
+
+                                <TextBlock Text="{Binding SettingsLanguageDescription}"
+                                           FontSize="14"
+                                           Foreground="{StaticResource TextSecondaryColor}"
+                                           TextWrapping="Wrap"
+                                           Margin="0,0,0,20" />
+
+                                <ComboBox ItemsSource="{Binding AvailableLanguages}"
+                                          SelectedValue="{Binding SelectedLanguage}"
+                                          SelectedValuePath="Code"
+                                          DisplayMemberPath="DisplayName"
+                                          Style="{StaticResource ModernComboBox}"
+                                          Margin="0,0,0,20" />
+
+                                <Button Content="{Binding SettingsSaveButton}"
+                                        Command="{Binding SaveLanguagePreferenceCommand}"
+                                        Style="{StaticResource PrimaryButton}"
+                                        HorizontalAlignment="Left"
+                                        Padding="30,12" />
+
+                                <Border Background="{StaticResource BackgroundColor}"
+                                        BorderBrush="{StaticResource BorderColor}"
+                                        BorderThickness="1"
+                                        CornerRadius="6"
+                                        Padding="20"
+                                        Margin="0,30,0,0">
+                                    <StackPanel>
+                                        <TextBlock FontSize="14"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{StaticResource TextPrimaryColor}"
+                                                   Margin="0,0,0,10">
+                                            <Run Text="ℹ️" />
+                                            <Run Text="{Binding SettingsInfoTitle, Mode=OneWay}" />
+                                        </TextBlock>
+                                        <TextBlock FontSize="13"
+                                                   Foreground="{StaticResource TextSecondaryColor}"
+                                                   TextWrapping="Wrap"
+                                                   Text="{Binding SettingsInfoDescription}" />
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </DataTemplate>
+
                 </ContentControl.Resources>
             </ContentControl>
         </Grid>
