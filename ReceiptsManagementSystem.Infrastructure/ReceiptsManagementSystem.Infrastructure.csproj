@@ -24,4 +24,11 @@
         </None>
     </ItemGroup>
 
+    <ItemGroup>
+      <None Remove="Database\Migrations\0001_InitialDBCreate.sql" />
+      <EmbeddedResource Include="Database\Migrations\0001_InitialDBCreate.sql" />
+      <None Remove="Database\Migrations\0002_AddReceiptDate.sql" />
+      <EmbeddedResource Include="Database\Migrations\0002_AddReceiptDate.sql" />
+    </ItemGroup>
+
 </Project>

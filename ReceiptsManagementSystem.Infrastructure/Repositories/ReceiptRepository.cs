@@ -15,7 +15,7 @@ public sealed class ReceiptRepository : IReceiptRepository
     {
         _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
     }
-    
+
     public async Task<int> GetNextReceiptNumberAsync(CancellationToken cancellationToken)
     {
         using var connection = new SqliteConnection(_connectionString);
