@@ -11,18 +11,21 @@ public static class DependencyInjection
         this IServiceCollection services,
         string connectionString)
     {
-        // Scoped: una instancia por operación, correcto para repositorios
-        services.AddScoped<IReceiptRepository>(
-            _ => new ReceiptRepository(connectionString));
+        services.AddSingleton(new MigrationRunner(connectionString));
 
-        // MigrationRunner sí puede ser Singleton
-        services.AddSingleton(_ =>
-        {
-            var migrationsFolder = Path.Combine(
-                AppContext.BaseDirectory, "Database", "Migrations");
-            return new MigrationRunner(connectionString, migrationsFolder);
-        });
+        services.AddScoped<IReceiptRepository>(sp =>
+            new ReceiptRepository(connectionString));
 
         return services;
     }
+}
+
+public interface IConnectionStringProvider
+{
+    string ConnectionString { get; }
+}
+
+public class ConnectionStringProvider(string connectionString) : IConnectionStringProvider
+{
+    public string ConnectionString { get; } = connectionString;
 }
