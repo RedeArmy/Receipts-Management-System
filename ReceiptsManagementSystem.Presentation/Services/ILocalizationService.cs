@@ -14,6 +14,27 @@ public interface ILocalizationService : INotifyPropertyChanged
     string Version { get; }
     string LanguageSpanish { get; }
     string LanguageEnglish { get; }
+    string ReceiptCustomerName { get; }
+    string ReceiptAmount { get; }
+    string ReceiptCurrency { get; }
+    string ReceiptDescription { get; }
+    string ReceiptPaymentMethod { get; }
+    string ReceiptCheckNumber { get; }
+    string ReceiptAccountNumber { get; }
+    string ReceiptBank { get; }
+    string ReceiptCustomerSignature { get; }
+    string ReceiptReceiverName { get; }
+    string ButtonSave { get; }
+    string ButtonClear { get; }
+    string PaymentMethodCash { get; }
+    string PaymentMethodCheck { get; }
+    string PaymentMethodTransfer { get; }
+    string ClientInfo { get; }
+    string ReceiptDetails { get; }
+    string PaymentMethod { get; }
+    string Signatures { get; }
+    string ReceiptDate { get; }
+    string ReceiptDateDescription { get; }
 
     CultureInfo CurrentCulture { get; }
     string CurrentLanguage { get; }

@@ -6,6 +6,7 @@
         xmlns:viewModels="clr-namespace:ReceiptsManagementSystem.Presentation.ViewModels"
         xmlns:receipts="clr-namespace:ReceiptsManagementSystem.Presentation.ViewModels.Receipts"
         xmlns:settings="clr-namespace:ReceiptsManagementSystem.Presentation.ViewModels.Settings"
+        xmlns:views="clr-namespace:ReceiptsManagementSystem.Presentation.Views.Receipts"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=viewModels:MainViewModel}"
         Title="{Binding Localization.AppTitle}"
@@ -204,11 +205,8 @@
                                    Foreground="{StaticResource TextSecondaryColor}" />
                     </DataTemplate>
 
-                    <!-- DataTemplate para CreateReceiptViewModel -->
                     <DataTemplate DataType="{x:Type receipts:CreateReceiptViewModel}">
-                        <TextBlock Text="Vista de Crear Recibo (próximamente)"
-                                   FontSize="18"
-                                   Foreground="{StaticResource TextSecondaryColor}" />
+                        <views:CreateReceiptView />
                     </DataTemplate>
 
                     <DataTemplate DataType="{x:Type settings:SettingsViewModel}">

@@ -11,7 +11,6 @@ public sealed partial class CreateReceiptViewModel : BaseViewModel
 {
     private readonly IMediator _mediator;
 
-    // --- Campos del formulario ---
     [ObservableProperty] private string _customerName = string.Empty;
     [ObservableProperty] private string _description = string.Empty;
     [ObservableProperty] private decimal _amount;
@@ -22,14 +21,14 @@ public sealed partial class CreateReceiptViewModel : BaseViewModel
     [ObservableProperty] private string _bank = string.Empty;
     [ObservableProperty] private string _customerSignatureName = string.Empty;
     [ObservableProperty] private string _receiverName = string.Empty;
+    [ObservableProperty] private DateTime _receiptDate = DateTime.Today;
 
-    // --- Estado condicional según método de pago ---
     [ObservableProperty] private bool _showCheckFields;
     [ObservableProperty] private bool _showTransferFields;
 
-    // --- Feedback al usuario ---
     [ObservableProperty] private string _successMessage = string.Empty;
     [ObservableProperty] private string _errorMessage = string.Empty;
+    [ObservableProperty] private bool _isCustomerSignatureManuallyEdited;
 
     public static IEnumerable<PaymentMethod> PaymentMethods =>
         Enum.GetValues<PaymentMethod>();
@@ -40,10 +39,34 @@ public sealed partial class CreateReceiptViewModel : BaseViewModel
         Title = "Nuevo Recibo";
     }
 
-    /// <summary>
-    /// Cuando cambia el método de pago, actualiza la visibilidad
-    /// de los campos condicionales (cheque/transferencia).
-    /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage(
+        "Major Code Smell",
+        "S1144:Unused private types or members should be removed",
+        Justification = "Used by MVVM Toolkit source generator")]
+    partial void OnCustomerNameChanged(string value)
+    {
+        if (!IsCustomerSignatureManuallyEdited)
+        {
+            CustomerSignatureName = value;
+        }
+    }
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage(
+        "Major Code Smell",
+        "S1144:Unused private types or members should be removed",
+        Justification = "Used by MVVM Toolkit source generator")]
+    partial void OnCustomerSignatureNameChanged(string value)
+    {
+        if (!string.IsNullOrWhiteSpace(value) && value != CustomerName)
+        {
+            IsCustomerSignatureManuallyEdited = true;
+        }
+
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            IsCustomerSignatureManuallyEdited = false;
+        }
+    }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage(
         "Major Code Smell",
@@ -55,13 +78,14 @@ public sealed partial class CreateReceiptViewModel : BaseViewModel
         ShowCheckFields = value == PaymentMethod.Check;
         ShowTransferFields = value == PaymentMethod.Transfer;
 
-        // Limpiar campos que no aplican
-        if (value == PaymentMethod.Cash)
+        if (value != PaymentMethod.Cash)
         {
-            CheckOrTransferNumber = string.Empty;
-            AccountNumber = string.Empty;
-            Bank = string.Empty;
+            return;
         }
+
+        CheckOrTransferNumber = string.Empty;
+        AccountNumber = string.Empty;
+        Bank = string.Empty;
     }
 
     [RelayCommand]
@@ -79,15 +103,14 @@ public sealed partial class CreateReceiptViewModel : BaseViewModel
 
             try
             {
-                // Construir el DTO con los datos del formulario
                 var dto = new CreateReceiptDto
                 {
-                    CustomerId = Guid.NewGuid(), // temporal hasta tener gestión de clientes
+                    CustomerId = Guid.NewGuid(),
                     CustomerName = CustomerName,
                     Amount = Amount,
                     Currency = Currency,
                     Description = Description,
-                    PaymentMethod = PaymentMethod,
+                     PaymentMethod = PaymentMethod,
                     CheckOrTransferNumber = string.IsNullOrWhiteSpace(CheckOrTransferNumber)
                         ? null
                         : CheckOrTransferNumber,
@@ -98,10 +121,10 @@ public sealed partial class CreateReceiptViewModel : BaseViewModel
                         ? null
                         : Bank,
                     CustomerSignatureName = CustomerSignatureName,
-                    ReceiverName = ReceiverName
+                    ReceiverName = ReceiverName,
+                    ReceiptDate = ReceiptDate
                 };
 
-                // Enviar comando para crear el recibo
                 var command = new CreateReceiptCommand(dto);
                 var receiptId = await _mediator.Send(command, CancellationToken.None);
 
@@ -127,6 +150,7 @@ public sealed partial class CreateReceiptViewModel : BaseViewModel
         Bank = string.Empty;
         CustomerSignatureName = string.Empty;
         ReceiverName = string.Empty;
+        ReceiptDate = DateTime.Today;
         ErrorMessage = string.Empty;
         SuccessMessage = string.Empty;
     }
@@ -179,6 +203,12 @@ public sealed partial class CreateReceiptViewModel : BaseViewModel
             && (string.IsNullOrWhiteSpace(AccountNumber) || string.IsNullOrWhiteSpace(Bank)))
         {
             ErrorMessage = "Banco y número de cuenta son requeridos para transferencia.";
+            return false;
+        }
+
+        if (ReceiptDate > DateTime.Today)
+        {
+            ErrorMessage = "La fecha del recibo no puede ser futura.";
             return false;
         }
 

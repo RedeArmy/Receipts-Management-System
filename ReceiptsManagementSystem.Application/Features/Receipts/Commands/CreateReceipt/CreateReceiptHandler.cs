@@ -5,14 +5,10 @@ using ReceiptsManagementSystem.Domain.ValueObjects;
 
 namespace ReceiptsManagementSystem.Application.Features.Receipts.Commands.CreateReceipt;
 
-public sealed class CreateReceiptHandler : IRequestHandler<CreateReceiptCommand, Guid>
+public sealed class CreateReceiptHandler(IReceiptRepository receiptRepository)
+    : IRequestHandler<CreateReceiptCommand, Guid>
 {
-    private readonly IReceiptRepository _receiptRepository;
-
-    public CreateReceiptHandler(IReceiptRepository receiptRepository)
-    {
-        _receiptRepository = receiptRepository ?? throw new ArgumentNullException(nameof(receiptRepository));
-    }
+    private readonly IReceiptRepository _receiptRepository = receiptRepository ?? throw new ArgumentNullException(nameof(receiptRepository));
 
     public async Task<Guid> Handle(CreateReceiptCommand request, CancellationToken cancellationToken)
     {
@@ -34,9 +30,9 @@ public sealed class CreateReceiptHandler : IRequestHandler<CreateReceiptCommand,
             accountNumber:         dto.AccountNumber,
             bank:                  dto.Bank,
             customerSignatureName: dto.CustomerSignatureName,
-            receiverName:          dto.ReceiverName);
+            receiverName:          dto.ReceiverName,
+            receiptDate:           dto.ReceiptDate);
 
-        // 4. Persistir
         await _receiptRepository.AddAsync(receipt, cancellationToken);
 
         return receipt.Id;

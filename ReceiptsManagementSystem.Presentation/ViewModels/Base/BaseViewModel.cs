@@ -7,7 +7,7 @@ public abstract class BaseViewModel : ObservableObject
     private bool _isBusy;
     private string _title = string.Empty;
 
-    private bool IsBusy
+    public bool IsBusy
     {
         get => _isBusy;
         set => SetProperty(ref _isBusy, value);

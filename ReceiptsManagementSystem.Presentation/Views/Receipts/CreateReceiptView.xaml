@@ -1,0 +1,250 @@
+<UserControl x:Class="ReceiptsManagementSystem.Presentation.Views.Receipts.CreateReceiptView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:ReceiptsManagementSystem.Presentation.ViewModels.Receipts"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=viewModels:CreateReceiptViewModel}"
+             d:DesignHeight="800"
+             d:DesignWidth="1000">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel MaxWidth="800" Margin="0,20,0,20">
+
+            <Border Background="#D4EDDA"
+                    BorderBrush="#C3E6CB"
+                    BorderThickness="1"
+                    CornerRadius="6"
+                    Padding="15"
+                    Margin="0,0,0,20"
+                    Visibility="{Binding SuccessMessage, Converter={StaticResource StringToVisibilityConverter}}">
+                <TextBlock Text="{Binding SuccessMessage}"
+                           Foreground="#155724"
+                           FontWeight="Medium" />
+            </Border>
+
+            <Border Background="#F8D7DA"
+                    BorderBrush="#F5C6CB"
+                    BorderThickness="1"
+                    CornerRadius="6"
+                    Padding="15"
+                    Margin="0,0,0,20"
+                    Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}">
+                <TextBlock Text="{Binding ErrorMessage}"
+                           Foreground="#721C24"
+                           FontWeight="Medium" />
+            </Border>
+
+            <TextBlock Text="{Binding DataContext.Localization.ClientInfo, RelativeSource={RelativeSource AncestorType=Window}}"
+                       FontSize="18"
+                       FontWeight="SemiBold"
+                       Foreground="{StaticResource TextPrimaryColor}"
+                       Margin="0,0,0,15" />
+
+            <Border Background="{StaticResource SurfaceColor}"
+                    BorderBrush="{StaticResource BorderColor}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="20"
+                    Margin="0,0,0,30">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0">
+                        <TextBlock Text="{Binding DataContext.Localization.ReceiptCustomerName, RelativeSource={RelativeSource AncestorType=Window}}"
+                                   Style="{StaticResource FormLabel}" />
+                        <TextBox Text="{Binding CustomerName, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource ModernTextBox}"
+                                 Margin="0,0,0,20" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="2">
+                        <TextBlock Text="{Binding DataContext.Localization.ReceiptDate, RelativeSource={RelativeSource AncestorType=Window}}"
+                                   Style="{StaticResource FormLabel}" />
+                        <TextBlock Text="{Binding DataContext.Localization.ReceiptDateDescription, RelativeSource={RelativeSource AncestorType=Window}}"
+                                   FontSize="12"
+                                   Foreground="{StaticResource TextSecondaryColor}"
+                                   Margin="0,0,0,8" />
+                        <DatePicker SelectedDate="{Binding ReceiptDate, Mode=TwoWay}"
+                                    Style="{StaticResource ModernDatePicker}"
+                                    DisplayDate="{Binding ReceiptDate}"
+                                    FirstDayOfWeek="Sunday" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <TextBlock Text="{Binding DataContext.Localization.ReceiptDetails, RelativeSource={RelativeSource AncestorType=Window}}"
+                       FontSize="18"
+                       FontWeight="SemiBold"
+                       Foreground="{StaticResource TextPrimaryColor}"
+                       Margin="0,0,0,15" />
+
+            <Border Background="{StaticResource SurfaceColor}"
+                    BorderBrush="{StaticResource BorderColor}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="20"
+                    Margin="0,0,0,30">
+                <StackPanel>
+                    <Grid Margin="0,0,0,20">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*" />
+                            <ColumnDefinition Width="20" />
+                            <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="{Binding DataContext.Localization.ReceiptAmount, RelativeSource={RelativeSource AncestorType=Window}}"
+                                       Style="{StaticResource FormLabel}" />
+                            <TextBox Text="{Binding Amount, UpdateSourceTrigger=PropertyChanged, StringFormat=N2}"
+                                     Style="{StaticResource ModernTextBox}" />
+                        </StackPanel>
+
+                        <!-- Moneda -->
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="{Binding DataContext.Localization.ReceiptCurrency, RelativeSource={RelativeSource AncestorType=Window}}"
+                                       Style="{StaticResource FormLabel}" />
+                            <TextBox Text="{Binding Currency}"
+                                     Style="{StaticResource ModernTextBox}"
+                                     IsReadOnly="True"
+                                     Background="#F3F4F6" />
+                        </StackPanel>
+                    </Grid>
+
+                    <TextBlock Text="{Binding DataContext.Localization.ReceiptDescription, RelativeSource={RelativeSource AncestorType=Window}}"
+                               Style="{StaticResource FormLabel}" />
+                    <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource ModernTextBox}"
+                             Height="80"
+                             AcceptsReturn="True"
+                             TextWrapping="Wrap"
+                             VerticalContentAlignment="Top"
+                             Margin="0,0,0,20" />
+                </StackPanel>
+            </Border>
+
+            <TextBlock Text="{Binding DataContext.Localization.PaymentMethod, RelativeSource={RelativeSource AncestorType=Window}}"
+                       FontSize="18"
+                       FontWeight="SemiBold"
+                       Foreground="{StaticResource TextPrimaryColor}"
+                       Margin="0,0,0,15" />
+
+            <Border Background="{StaticResource SurfaceColor}"
+                    BorderBrush="{StaticResource BorderColor}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="20"
+                    Margin="0,0,0,30">
+                <StackPanel>
+                    <TextBlock Text="{Binding DataContext.Localization.ReceiptPaymentMethod, RelativeSource={RelativeSource AncestorType=Window}}"
+                               Style="{StaticResource FormLabel}" />
+                    <ComboBox ItemsSource="{Binding PaymentMethods}"
+                              SelectedItem="{Binding PaymentMethod}"
+                              Style="{StaticResource ModernComboBox}"
+                              Margin="0,0,0,20">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock>
+                                    <TextBlock.Text>
+                                        <MultiBinding Converter="{StaticResource PaymentMethodConverter}">
+                                            <Binding />
+
+                                            <Binding Path="DataContext.Localization.CurrentLanguage"
+                                                     RelativeSource="{RelativeSource AncestorType=Window}" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+
+                    <StackPanel Visibility="{Binding ShowCheckFields, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <TextBlock Text="{Binding DataContext.Localization.ReceiptCheckNumber, RelativeSource={RelativeSource AncestorType=Window}}"
+                                   Style="{StaticResource FormLabel}" />
+                        <TextBox Text="{Binding CheckOrTransferNumber, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource ModernTextBox}"
+                                 Margin="0,0,0,20" />
+                    </StackPanel>
+
+                    <StackPanel Visibility="{Binding ShowTransferFields, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <TextBlock Text="{Binding DataContext.Localization.ReceiptAccountNumber, RelativeSource={RelativeSource AncestorType=Window}}"
+                                   Style="{StaticResource FormLabel}" />
+                        <TextBox Text="{Binding AccountNumber, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource ModernTextBox}"
+                                 Margin="0,0,0,20" />
+
+                        <!-- Banco -->
+                        <TextBlock Text="{Binding DataContext.Localization.ReceiptBank, RelativeSource={RelativeSource AncestorType=Window}}"
+                                   Style="{StaticResource FormLabel}" />
+                        <TextBox Text="{Binding Bank, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource ModernTextBox}"
+                                 Margin="0,0,0,0" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <TextBlock Text="{Binding DataContext.Localization.Signatures, RelativeSource={RelativeSource AncestorType=Window}}"
+                       FontSize="18"
+                       FontWeight="SemiBold"
+                       Foreground="{StaticResource TextPrimaryColor}"
+                       Margin="0,0,0,15" />
+
+            <Border Background="{StaticResource SurfaceColor}"
+                    BorderBrush="{StaticResource BorderColor}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="20"
+                    Margin="0,0,0,30">
+                <StackPanel>
+                    <TextBlock Text="{Binding DataContext.Localization.ReceiptCustomerSignature, RelativeSource={RelativeSource AncestorType=Window}}"
+                               Style="{StaticResource FormLabel}" />
+                    <TextBox Text="{Binding CustomerSignatureName, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource ModernTextBox}"
+                             Margin="0,0,0,20" />
+
+                    <TextBlock Text="{Binding DataContext.Localization.ReceiptReceiverName, RelativeSource={RelativeSource AncestorType=Window}}"
+                               Style="{StaticResource FormLabel}" />
+                    <TextBox Text="{Binding ReceiverName, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource ModernTextBox}" />
+                </StackPanel>
+            </Border>
+
+            <Grid Margin="0,10,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="20" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Column="0"
+                        Content="{Binding DataContext.Localization.ButtonSave, RelativeSource={RelativeSource AncestorType=Window}}"
+                        Command="{Binding SaveReceiptCommand}"
+                        Style="{StaticResource PrimaryButton}"
+                        Padding="40,12"
+                        IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBooleanConverter}}" />
+
+                <Button Grid.Column="2"
+                        Content="{Binding DataContext.Localization.ButtonClear, RelativeSource={RelativeSource AncestorType=Window}}"
+                        Command="{Binding ClearFormCommand}"
+                        Style="{StaticResource SecondaryButton}"
+                        Padding="40,12"
+                        IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBooleanConverter}}" />
+            </Grid>
+
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        Margin="0,20,0,0"
+                        Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <TextBlock Text="⏳ Guardando recibo..."
+                           FontSize="14"
+                           Foreground="{StaticResource TextSecondaryColor}" />
+            </StackPanel>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

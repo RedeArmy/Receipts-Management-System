@@ -76,14 +76,14 @@
     <value>Monto</value>
   </data>
     <data name="Receipt_Description" xml:space="preserve">
-    <value>Concepto</value>
-  </data>
+        <value>Concepto / Descripción</value>
+    </data>
     <data name="Receipt_PaymentMethod" xml:space="preserve">
     <value>Método de pago</value>
   </data>
     <data name="Receipt_CheckNumber" xml:space="preserve">
-    <value>Número de cheque/transferencia</value>
-  </data>
+        <value>Número de cheque</value>
+    </data>
     <data name="Receipt_AccountNumber" xml:space="preserve">
     <value>Número de cuenta</value>
   </data>
@@ -153,8 +153,8 @@
     <value>El nombre de quien recibe es requerido.</value>
   </data>
     <data name="Validation_CheckNumberRequired" xml:space="preserve">
-    <value>El número de cheque/transferencia es requerido.</value>
-  </data>
+        <value>El número de cheque es requerido.</value>
+    </data>
     <data name="Validation_BankInfoRequired" xml:space="preserve">
     <value>Banco y número de cuenta son requeridos para transferencia.</value>
   </data>
@@ -202,5 +202,38 @@
 - Para cambiar el idioma permanentemente, selecciona tu idioma preferido aquí y haz clic en 'Guardar cambios'.
 
 - 'Detectar automáticamente' usa el idioma de tu sistema operativo.</value>
+    </data>
+    <data name="Receipt_Currency" xml:space="preserve">
+        <value>Moneda</value>
+    </data>
+    <data name="Receipt_Button_Save" xml:space="preserve">
+        <value>Guardar Recibo</value>
+    </data>
+    <data name="Receipt_Button_Clear" xml:space="preserve">
+        <value>Limpiar Formulario</value>
+    </data>
+    <data name="Message_ReceiptCreatedSuccess" xml:space="preserve">
+        <value>Recibo guardado exitosamente</value>
+    </data>
+    <data name="Client_Info" xml:space="preserve">
+        <value>Información del Cliente</value>
+    </data>
+    <data name="Receipt_Details" xml:space="preserve">
+        <value>Detalles del Recibo</value>
+    </data>
+    <data name="Payment_Method" xml:space="preserve">
+        <value>Método de Pago</value>
+    </data>
+    <data name="Signatures" xml:space="preserve">
+        <value>Firmas</value>
+    </data>
+    <data name="Message_ReceiptCreation" xml:space="preserve">
+        <value>⏳ Guardando recibo...</value>
+    </data>
+    <data name="Receipt_Date" xml:space="preserve">
+        <value>Fecha del recibo</value>
+    </data>
+    <data name="Receipt_Date_Description" xml:space="preserve">
+        <value>Fecha en que se recibió el dinero</value>
     </data>
 </root>
