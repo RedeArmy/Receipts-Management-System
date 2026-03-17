@@ -20,6 +20,7 @@ public sealed class Receipt
     public string ReceiverName { get; private set; } = string.Empty;
     public ReceiptStatus Status { get; private set; } = ReceiptStatus.Active;
     public string? CancellationReason { get; private set; }
+    public DateTime ReceiptDate { get; private set; }
     public DateTime CreatedAt { get; private set; }
 
     // Constructor principal
@@ -35,7 +36,8 @@ public sealed class Receipt
         string? bank,
         //Money? pendingBalance,
         string customerSignatureName,
-        string receiverName)
+        string receiverName,
+        DateTime receiptDate)
     {
         Id = Guid.NewGuid();
         ReceiptNumber = receiptNumber;
@@ -58,6 +60,7 @@ public sealed class Receipt
         ReceiverName = string.IsNullOrWhiteSpace(receiverName)
             ? throw new ArgumentNullException(nameof(receiverName))
             : receiverName;
+        ReceiptDate = receiptDate;
         CreatedAt = DateTime.UtcNow;
 
         ValidatePaymentFields();
@@ -84,6 +87,7 @@ public sealed class Receipt
         string receiverName,
         ReceiptStatus status,
         string? cancellationReason,
+        DateTime receiptDate,
         DateTime createdAt)
     {
         return new Receipt
@@ -102,6 +106,7 @@ public sealed class Receipt
             ReceiverName = receiverName,
             Status = status,
             CancellationReason = cancellationReason,
+            ReceiptDate = receiptDate,
             CreatedAt = createdAt
         };
     }

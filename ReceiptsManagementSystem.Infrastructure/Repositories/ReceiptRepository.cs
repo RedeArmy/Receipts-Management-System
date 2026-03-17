@@ -1,3 +1,4 @@
+using System.Globalization;
 using Dapper;
 using Microsoft.Data.Sqlite;
 using ReceiptsManagementSystem.Domain.Aggregates;
@@ -33,18 +34,13 @@ public sealed class ReceiptRepository : IReceiptRepository
 
         const string sql = """
                                INSERT INTO Receipts (
-                                   Id, ReceiptNumber, CustomerId, CustomerName,
-                                   Amount, Currency, Description, PaymentMethod,
-                                   CheckOrTransferNumber, AccountNumber, Bank,
-                                   CustomerSignatureName, ReceiverName,
-                                   Status, CancellationReason, CreatedAt
-                               )
-                               VALUES (
-                                   @Id, @ReceiptNumber, @CustomerId, @CustomerName,
-                                   @Amount, @Currency, @Description, @PaymentMethod,
-                                   @CheckOrTransferNumber, @AccountNumber, @Bank,
-                                   @CustomerSignatureName, @ReceiverName,
-                                   @Status, @CancellationReason, @CreatedAt
+                               Id, ReceiptNumber, CustomerId, CustomerName, Amount, Currency,
+                               Description, PaymentMethod, CheckOrTransferNumber, AccountNumber, Bank,
+                               CustomerSignatureName, ReceiverName, Status, CancellationReason, ReceiptDate, CreatedAt
+                               ) VALUES (
+                                   @Id, @ReceiptNumber, @CustomerId, @CustomerName, @Amount, @Currency,
+                                   @Description, @PaymentMethod, @CheckOrTransferNumber, @AccountNumber, @Bank,
+                                   @CustomerSignatureName, @ReceiverName, @Status, @CancellationReason, @ReceiptDate, @CreatedAt
                                )
                            """;
 
@@ -152,6 +148,7 @@ public sealed class ReceiptRepository : IReceiptRepository
         r.ReceiverName,
         Status = r.Status.ToString(),
         r.CancellationReason,
+        ReceiptDate = r.ReceiptDate.ToString("O"),
         CreatedAt = r.CreatedAt.ToString("O")
     };
 
@@ -172,7 +169,14 @@ public sealed class ReceiptRepository : IReceiptRepository
             receiverName: (string)data.ReceiverName,
             status: Enum.Parse<ReceiptStatus>((string)data.Status),
             cancellationReason: (string?)data.CancellationReason,
-            createdAt: DateTime.Parse((string)data.CreatedAt)
+            receiptDate: DateTime.Parse(  // ← NUEVO
+                (string)data.ReceiptDate,
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.RoundtripKind),
+            createdAt: DateTime.Parse(
+                (string)data.CreatedAt,
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.RoundtripKind)
         );
     }
 }

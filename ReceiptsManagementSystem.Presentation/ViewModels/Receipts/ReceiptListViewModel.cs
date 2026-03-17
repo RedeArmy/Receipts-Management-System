@@ -23,9 +23,6 @@ public sealed partial class ReceiptListViewModel : BaseViewModel
         Title     = "Recibos";
     }
 
-    /// <summary>
-    /// Se llama automáticamente cuando la vista se carga.
-    /// </summary>
     [RelayCommand]
     private async Task LoadReceiptsAsync()
     {

@@ -76,14 +76,14 @@
     <value>Amount</value>
   </data>
     <data name="Receipt_Description" xml:space="preserve">
-    <value>Description</value>
-  </data>
+        <value>Description / Concept</value>
+    </data>
     <data name="Receipt_PaymentMethod" xml:space="preserve">
     <value>Payment method</value>
   </data>
     <data name="Receipt_CheckNumber" xml:space="preserve">
-    <value>Cheque/transfer number</value>
-  </data>
+        <value>Check number</value>
+    </data>
     <data name="Receipt_AccountNumber" xml:space="preserve">
     <value>Account number</value>
   </data>
@@ -153,8 +153,8 @@
     <value>Received by name is required.</value>
   </data>
     <data name="Validation_CheckNumberRequired" xml:space="preserve">
-    <value>Cheque/transfer number is required.</value>
-  </data>
+        <value>Check number is required.</value>
+    </data>
     <data name="Validation_BankInfoRequired" xml:space="preserve">
     <value>Bank and account number are required for transfers.</value>
   </data>
@@ -202,5 +202,38 @@
 - To change the language permanently, select your preferred language here and click 'Save changes'.
 
 - 'Detect automatically' uses your operating system language.</value>
+    </data>
+    <data name="Receipt_Button_Save" xml:space="preserve">
+        <value>Save Receipt</value>
+    </data>
+    <data name="Receipt_Button_Clear" xml:space="preserve">
+        <value>Clear Form</value>
+    </data>
+    <data name="Receipt_Currency" xml:space="preserve">
+        <value>Currency</value>
+    </data>
+    <data name="Message_ReceiptCreatedSuccess" xml:space="preserve">
+        <value>Receipt saved</value>
+    </data>
+    <data name="Client_Info" xml:space="preserve">
+        <value>Client Information</value>
+    </data>
+    <data name="Receipt_Details" xml:space="preserve">
+        <value>Receipt Details</value>
+    </data>
+    <data name="Payment_Method" xml:space="preserve">
+        <value>Payment Method</value>
+    </data>
+    <data name="Signatures" xml:space="preserve">
+        <value>Signatures</value>
+    </data>
+    <data name="Message_ReceiptCreation" xml:space="preserve">
+        <value>⏳ Saving Receipt...</value>
+    </data>
+    <data name="Receipt_Date" xml:space="preserve">
+        <value>Receipt date</value>
+    </data>
+    <data name="Receipt_Date_Description" xml:space="preserve">
+        <value>Date when the money was received</value>
     </data>
 </root>
